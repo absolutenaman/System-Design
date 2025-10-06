@@ -1,0 +1,3 @@
+module CommunicationTechniques
+
+go 1.23.2
