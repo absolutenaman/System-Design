@@ -1,10 +1,51 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Document</title>
 </head>
 <body>
-$END$
+<h2>Long Polling</h2>
+<h4 id="message"></h4>
+<h4> Version <span id="version"></span></h4>
+<form>
+    <input type="text" id="input-box"/>
+    <button id="submit-button" onclick="sendMessage(event)">Submit (REST)</button>
+</form>
 </body>
+<script>
+    async function polling() {
+
+        try {
+            let res = await fetch("http://localhost:8080/poll")
+            let data = await res.json()
+            if (res.ok) {
+                document.getElementById("message").innerHTML = data.message
+                document.getElementById("version").innerHTML = data.version
+            } else {
+            }
+        } catch (e) {
+            console.log("Error", e)
+        } finally {
+          await  polling()
+        }
+
+    }
+
+    polling()
+
+    async function sendMessage(e) {
+        e.preventDefault()
+        const inputElement = document.getElementById("input-box");
+        const message = inputElement.value;
+        await fetch("http://localhost:8080/message", {
+            method: "POST",
+            headers: {'Content-type': 'application/json'},
+            body: JSON.stringify({"message": message})
+        })
+        document.getElementById("submit-button").value = ''
+    }
+
+</script>
 </html>

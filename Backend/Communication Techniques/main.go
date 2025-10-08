@@ -1,38 +1,81 @@
 package main
 
 import (
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"log"
 	"net/http"
+	"sync"
 )
 
+var (
+	currentMessage string = "Initial message"
+	messageID      int    = 0
+	mu             sync.Mutex
+	cond           *sync.Cond
+)
+
+func init() {
+	cond = sync.NewCond(&mu)
+}
+
 func main() {
-	server := gin.Default()
-	server.Handle("GET", "/getData", HandleShortPolling)
-	server.Handle("GET", "/UpdateData", UpdatePollingData)
-	err := server.Run("localhost:8000")
-	if err != nil {
-		panic(err)
+	r := gin.Default()
+	config := cors.DefaultConfig()
+	config.AllowAllOrigins = true
+
+	r.Use(cors.New(config))
+	r.POST("/message", postMessageHandler)
+	r.GET("/poll", pollHandler)
+	log.Println("Server running on http://localhost:8080")
+	r.Run("localhost:8080")
+}
+
+func postMessageHandler(c *gin.Context) {
+
+	var json struct {
+		Message string `json:"message" binding:"required"`
+	}
+
+	if c.BindJSON(&json) == nil {
+		mu.Lock()
+		currentMessage = json.Message
+		messageID++
+		mu.Unlock()
+		cond.Broadcast()
+		c.JSON(http.StatusOK, gin.H{"status": "updated"})
 	}
 }
 
-var data string
-var clientsArr []int64
+func pollHandler(c *gin.Context) {
 
-func initialiseDummyValue() {
-	data = "initial data"
-}
-func HandleShortPolling(ctx *gin.Context) {
-	initialiseDummyValue()
-	lastName := ctx.Query("lastName")
-	if lastName != "" {
-	} else {
-		ctx.Header("Access-Control-Allow-Origin", "*")
-		ctx.JSON(http.StatusOK, gin.H{"data": data})
+	clientVersion := 0
+	messageID = 0
+	mu.Lock()
+	if messageID > clientVersion {
+		response := gin.H{"message": currentMessage, "version": messageID}
+		mu.Unlock()
+		c.JSON(http.StatusOK, response)
+		return
 	}
-}
-func UpdatePollingData(ctx *gin.Context) {
-	data = "Updated Data"
-	ctx.Header("Access-Control-Allow-Origin", "*")
 
-	ctx.JSON(http.StatusOK, gin.H{"data": data})
+	done := make(chan struct{})
+
+	go func() {
+		cond.Wait()
+		close(done)
+	}()
+
+	select {
+	case <-done:
+		response := gin.H{"message": currentMessage, "version": messageID}
+		mu.Unlock()
+
+		c.JSON(http.StatusOK, response)
+
+	case <-c.Request.Context().Done():
+		mu.Unlock()
+
+		c.Status(http.StatusNoContent)
+	}
 }

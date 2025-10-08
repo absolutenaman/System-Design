@@ -5,6 +5,26 @@
     <title>Title</title>
 </head>
 <body>
-
+<h1>Short Polling</h1>
+<p id="polling-response"></p>
 </body>
+<script>
+
+
+    async function fun() {
+        let data;
+        try {
+            let res = await fetch("http://localhost:8080/getData?lastName=Srivastava")
+            data = await res.json()
+        }
+        catch (err){
+            console.log(err)
+        }
+        document.getElementById("polling-response").innerHTML = (data.data)
+    }
+    setInterval(()=>{
+        fun()
+    },5000)
+
+</script>
 </html>
