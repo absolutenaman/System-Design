@@ -172,15 +172,15 @@ func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 	go client.readPump()
 }
 
-func main() {
-	hub := newHub()
-	go hub.run()
-
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		serveWs(hub, w, r)
-	})
-
-	addr := ":8080"
-	fmt.Printf("Starting server at http://localhost%s\n", addr)
-	log.Fatal(http.ListenAndServe(addr, nil))
-}
+//func main() {
+//	hub := newHub()
+//	go hub.run()
+//
+//	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+//		serveWs(hub, w, r)
+//	})
+//
+//	addr := ":8080"
+//	fmt.Printf("Starting server at http://localhost%s\n", addr)
+//	log.Fatal(http.ListenAndServe(addr, nil))
+//}
