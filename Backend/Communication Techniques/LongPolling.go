@@ -1,9 +1,7 @@
 package main
 
 import (
-	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"log"
 	"net/http"
 	"sync"
 )
@@ -19,17 +17,17 @@ func init() {
 	cond = sync.NewCond(&mu)
 }
 
-func main() {
-	r := gin.Default()
-	config := cors.DefaultConfig()
-	config.AllowAllOrigins = true
-
-	r.Use(cors.New(config))
-	r.POST("/message", postMessageHandler)
-	r.GET("/poll", pollHandler)
-	log.Println("Server running on http://localhost:8080")
-	r.Run("localhost:8080")
-}
+//func main() {
+//	r := gin.Default()
+//	config := cors.DefaultConfig()
+//	config.AllowAllOrigins = true
+//
+//	r.Use(cors.New(config))
+//	r.POST("/message", postMessageHandler)
+//	r.GET("/poll", pollHandler)
+//	log.Println("Server running on http://localhost:8080")
+//	r.Run("localhost:8080")
+//}
 
 func postMessageHandler(c *gin.Context) {
 
