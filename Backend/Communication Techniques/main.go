@@ -1,29 +1,27 @@
 package main
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
-//func main() {
-//	server := gin.Default()
-//	server.Handle("GET", "/getData", HandleShortPolling)
-//	server.Handle("GET", "/UpdateData", UpdatePollingData)
-//	err := server.Run("localhost:8000")
-//	if err != nil {
-//		panic(err)
-//	}
-//}
+func main() {
+	server := gin.Default()
+	server.Handle("GET", "/getData", HandleShortPolling)
+	server.Handle("GET", "/UpdateData", UpdatePollingData)
+	err := server.Run("localhost:8000")
+	if err != nil {
+		panic(err)
+	}
+}
 
 var data string
-var clientsArr []int64
 
-func initialiseDummyValue() {
-	data = "initial data"
-}
 func HandleShortPolling(ctx *gin.Context) {
-	initialiseDummyValue()
+	data = "initial data"
 	lastName := ctx.Query("lastName")
+	fmt.Println(lastName)
 	if lastName != "" {
 	} else {
 		ctx.Header("Access-Control-Allow-Origin", "*")

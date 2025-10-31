@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"sync"
 
-	"github.com/gin-contrib/sse"
 	"github.com/gin-gonic/gin"
 )
 
@@ -29,7 +28,7 @@ func broadcast(eventType, message string) {
 	defer mutex.Unlock()
 	payload := gin.H{"event": eventType, "data": message}
 	jsonData, _ := json.Marshal(payload)
-	msg := sse.Encode(jsonData)
+	msg := jsonData
 
 	for client := range clients {
 		select {
@@ -115,17 +114,17 @@ func sseHandler(c *gin.Context) {
 	}
 }
 
-func main() {
-	// Set up Gin router
-	r := gin.Default()
-
-	// Webhook endpoint (receives from upstream like Stripe)
-	r.POST("/webhook", webhookHandler)
-
-	// SSE endpoint (downstream API that "tells" frontend)
-	r.GET("/events", sseHandler)
-
-	port := ":8080"
-	fmt.Printf("Server on http://localhost%s (webhook: /webhook, events: /events)\n", port)
-	r.Run(port)
-}
+//func main() {
+//	// Set up Gin router
+//	r := gin.Default()
+//
+//	// Webhook endpoint (receives from upstream like Stripe)
+//	r.POST("/webhook", webhookHandler)
+//
+//	// SSE endpoint (downstream API that "tells" frontend)
+//	r.GET("/events", sseHandler)
+//
+//	port := ":8080"
+//	fmt.Printf("Server on http://localhost%s (webhook: /webhook, events: /events)\n", port)
+//	r.Run(port)
+//}

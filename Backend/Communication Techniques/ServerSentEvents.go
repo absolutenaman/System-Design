@@ -7,14 +7,14 @@ import (
 	"time"
 )
 
-func main() {
-	server := gin.Default()
-	server.Handle("GET", "/getData", SendStreamOfEvents)
-	err := server.Run("localhost:8000")
-	if err != nil {
-		panic(err)
-	}
-}
+//func main() {
+//	server := gin.Default()
+//	server.Handle("GET", "/getData", SendStreamOfEvents)
+//	err := server.Run("localhost:8000")
+//	if err != nil {
+//		panic(err)
+//	}
+//}
 
 func SendStreamOfEvents(ctx *gin.Context) {
 	var number int
